@@ -11,15 +11,14 @@ export class Permission {
   @PrimaryGeneratedColumn()
   id: number;
   @Column({
-    length: 30,
+    length: 100,
   })
-  name: string;
+  apiUrl: string;
 
   @Column({
-    length: 50,
-    nullable: true,
+    length: 10,
   })
-  desc?: string;
+  apiMethod: string;
 
   @CreateDateColumn()
   createdAt: Date;
