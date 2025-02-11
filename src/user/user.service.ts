@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectEntityManager } from '@nestjs/typeorm';
@@ -6,9 +11,32 @@ import { EntityManager } from 'typeorm';
 import { User } from './entities/user.entity';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
+import { UserLoginDto } from './dto/user-login.dto';
 
 @Injectable()
 export class UserService {
+  @InjectEntityManager()
+  private readonly entityManager: EntityManager;
+
+  async login(input: UserLoginDto) {
+    // console.log(input, 123);
+    const entity = await this.entityManager.findOne(User, {
+      where: {
+        username: input.username,
+      },
+      relations: {
+        roles: true,
+      },
+    });
+
+    if (!entity) {
+      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST);
+    }
+    if (entity.password !== input.password) {
+      throw new BadRequestException('密码错误');
+    }
+    return entity;
+  }
   create(createUserDto: CreateUserDto) {
     return 'This action adds a new user';
   }
@@ -28,9 +56,6 @@ export class UserService {
   remove(id: number) {
     return `This action removes a #${id} user`;
   }
-
-  @InjectEntityManager()
-  private readonly entityManager: EntityManager;
 
   async init() {
     const user1 = new User();

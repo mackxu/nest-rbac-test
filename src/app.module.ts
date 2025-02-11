@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { AaaModule } from './aaa/aaa.module';
 import { BbbModule } from './bbb/bbb.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -21,6 +22,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
       logging: true,
+    }),
+    JwtModule.register({
+      global: true,
+      secret: 'duoduoxu222',
+      signOptions: {
+        expiresIn: '1h',
+      },
     }),
   ],
   controllers: [AppController],

@@ -15,7 +15,9 @@
 - role
 - permission
 ## JWT
-
+- @nestjs/jwt
+- JwtModule
+- JwtService
 ## 路由
 /user
 /aaa
