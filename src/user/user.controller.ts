@@ -1,17 +1,9 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { AllowNoToken } from 'src/common/decorator/token.decorator';
+import { AllowNoPermission } from 'src/common/decorator/permission.decorator';
 
 @Controller('user')
 export class UserController {
@@ -21,46 +13,25 @@ export class UserController {
   ) {}
 
   @Get('init')
+  @AllowNoToken()
+  @AllowNoPermission()
   async init() {
     await this.userService.init();
     return 'init success';
   }
 
   @Post('login')
+  @AllowNoToken()
+  @AllowNoPermission()
   async login(@Body() input: UserLoginDto) {
     const user = await this.userService.login(input);
     const token = await this.jwtService.signAsync({
       user: {
-        username: user.username,
         sub: user.id,
-        roles: user.roles.map((role) => role.name),
+        username: user.username,
+        roles: user.roles,
       },
     });
     return { token };
-  }
-
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
   }
 }

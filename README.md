@@ -18,6 +18,8 @@
 - @nestjs/jwt
 - JwtModule
 - JwtService
+- Reflector
+  - getAllAndOverride()
 
 ## decorator 装饰器
 
@@ -31,13 +33,6 @@
 - bbb role
 
 ## 权限
-- 新增aaa
-- 删除aaa
-- 修改aaa
-- 查询aaa
-- 新增bbb
-- 删除bbb
-- 修改bbb
-- 查询bbb
+通过restful api 规则制定访问接口权限
 
 ## Redis

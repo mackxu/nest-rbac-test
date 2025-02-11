@@ -4,10 +4,8 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectEntityManager } from '@nestjs/typeorm';
-import { EntityManager } from 'typeorm';
+import { EntityManager, In } from 'typeorm';
 import { User } from './entities/user.entity';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
@@ -37,24 +35,16 @@ export class UserService {
     }
     return entity;
   }
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
 
-  findAll() {
-    return `This action returns all user`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  findRolesByIds(ids: number[]) {
+    return this.entityManager.find(Role, {
+      where: {
+        id: In(ids),
+      },
+      relations: {
+        permissions: true,
+      },
+    });
   }
 
   async init() {
@@ -74,29 +64,46 @@ export class UserService {
     bbbRole.name = 'bbb';
 
     const permission1 = new Permission();
-    permission1.name = 'aaa:add';
-    permission1.desc = '增加 aaa';
+    permission1.apiMethod = 'get';
+    permission1.apiUrl = '/aaa';
     const permission2 = new Permission();
-    permission2.name = 'aaa:delete';
+    permission2.apiMethod = 'delete';
+    permission2.apiUrl = '/aaa';
     const permission3 = new Permission();
-    permission3.name = 'aaa:update';
+    permission3.apiMethod = 'petch';
+    permission3.apiUrl = '/aaa';
     const permission4 = new Permission();
-    permission4.name = 'aaa:query';
+    permission4.apiMethod = 'post';
+    permission4.apiUrl = '/aaa';
+
     const permission5 = new Permission();
-    permission5.name = 'bbb:add';
+    permission5.apiMethod = 'get';
+    permission5.apiUrl = '/bbb';
     const permission6 = new Permission();
-    permission6.name = 'bbb:delete';
+    permission6.apiUrl = '/bbb';
+    permission6.apiMethod = 'post';
     const permission7 = new Permission();
-    permission7.name = 'bbb:update';
+    permission7.apiUrl = '/bbb';
+    permission7.apiMethod = 'delete';
     const permission8 = new Permission();
-    permission8.name = 'bbb:query';
+    permission8.apiUrl = '/bbb';
+    permission8.apiMethod = 'patch';
+    const permission9 = new Permission();
+    permission9.apiUrl = '/bbb/:id';
+    permission9.apiMethod = 'get';
 
     user1.roles = [aaaRole, bbbRole];
     user2.roles = [aaaRole];
     user3.roles = [bbbRole];
 
     aaaRole.permissions = [permission1, permission2, permission3, permission4];
-    bbbRole.permissions = [permission5, permission6, permission7, permission8];
+    bbbRole.permissions = [
+      permission5,
+      permission6,
+      permission7,
+      permission8,
+      permission9,
+    ];
 
     await this.entityManager.save(Permission, [
       permission1,
@@ -107,6 +114,7 @@ export class UserService {
       permission6,
       permission7,
       permission8,
+      permission9,
     ]);
 
     await this.entityManager.save(Role, [aaaRole, bbbRole]);
