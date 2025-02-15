@@ -12,9 +12,13 @@ export class RedisService {
   }
 
   async listSet(key: string, list: Permission[], tts?: number) {
-    for (const item of list) {
-      await this.redisClient.lPush(key, JSON.stringify(item));
-    }
+    // for (const item of list) {
+    //   await this.redisClient.lPush(key, JSON.stringify(item));
+    // }
+    await this.redisClient.lPush(
+      key,
+      list.map((item) => JSON.stringify(item)),
+    );
     if (tts) {
       await this.redisClient.expire(key, tts);
     }
