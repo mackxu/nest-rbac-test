@@ -2,6 +2,7 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
 } from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
@@ -10,11 +11,16 @@ import { User } from './entities/user.entity';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { UserLoginDto } from './dto/user-login.dto';
+import { Request } from 'express';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class UserService {
   @InjectEntityManager()
   private readonly entityManager: EntityManager;
+
+  @Inject(RedisService)
+  private readonly redisService: RedisService;
 
   async login(input: UserLoginDto) {
     // console.log(input, 123);
@@ -37,6 +43,7 @@ export class UserService {
   }
 
   findRolesByIds(ids: number[]) {
+    // 通过role查找permissions
     return this.entityManager.find(Role, {
       where: {
         id: In(ids),
@@ -45,6 +52,32 @@ export class UserService {
         permissions: true,
       },
     });
+  }
+
+  async findPermissionsByUser(user: Request['user']) {
+    // 从redis中获取权限
+    const rKey = `rbac_test_${user.username}`;
+
+    const permissions = await this.redisService.listGet(rKey);
+    if (permissions.length) {
+      return permissions.map((p) => JSON.parse(p));
+    }
+    // 从数据库中获取权限
+    const roleIds = user.roles.map((r) => r.id);
+    const roles = await this.entityManager.find(Role, {
+      where: {
+        id: In(roleIds),
+      },
+      relations: {
+        permissions: true,
+      },
+    });
+    const rolePermissions = roles.reduce<Permission[]>((prev, curr) => {
+      prev.push(...curr.permissions);
+      return prev;
+    }, []);
+    await this.redisService.listSet(rKey, rolePermissions, 60);
+    return rolePermissions;
   }
 
   async init() {

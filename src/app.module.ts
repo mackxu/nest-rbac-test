@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guard/auth.guard';
 import { PermissionGuard } from './common/guard/permission.guard';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PermissionGuard } from './common/guard/permission.guard';
         expiresIn: '1h',
       },
     }),
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [

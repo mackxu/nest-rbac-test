@@ -9,7 +9,6 @@ import { Reflector } from '@nestjs/core';
 import { ALLOW_NO_PERMISSION } from '../decorator/permission.decorator';
 import { Request } from 'express';
 import { UserService } from 'src/user/user.service';
-import { Permission } from 'src/user/entities/permission.entity';
 import { pathToRegexp } from 'path-to-regexp';
 
 @Injectable()
@@ -34,15 +33,7 @@ export class PermissionGuard implements CanActivate {
       throw new ForbiddenException('权限问题，拒绝访问');
     }
 
-    // 通过角色查找拥有的权限
-    const roles = await this.userService.findRolesByIds(
-      user.roles.map((r) => r.id),
-    );
-
-    const permissions: Permission[] = roles.reduce((prev, curr) => {
-      prev.push(...curr.permissions);
-      return prev;
-    }, []);
+    const permissions = await this.userService.findPermissionsByUser(user);
 
     // 判断是否有权限
     const permission = permissions.find((p) => {
