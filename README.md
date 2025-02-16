@@ -3,6 +3,7 @@
 </p>
 
 ## TypeORM
+
 - @nestjs/typeorm typeorm mysql2
 - DataSource
 - EntityManager
@@ -11,10 +12,13 @@
 - Repository
 
 ## Entity
+
 - user
 - role
 - permission
+
 ## JWT
+
 - @nestjs/jwt
 - JwtModule
 - JwtService
@@ -24,15 +28,21 @@
 ## decorator 装饰器
 
 ## 路由
+
 /user
 /aaa
 /bbb
 
 ## 角色
+
 - aaa role
 - bbb role
 
 ## 权限
+
 通过restful api 规则制定访问接口权限
 
 ## Redis
+
+- ioredis
+- pipeline
